@@ -28,7 +28,7 @@ app.set('view engine', 'jade');
 
 app.use(logger('dev'));
 app.use(express.json());
-app.use(express.urlencoded({extended: false}));
+app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -43,12 +43,15 @@ fs.readdirSync(path.join(__dirname, 'routes')).forEach(file => {
   Object.keys(RouterMap).forEach((path) => {
     app.use(`/${filename}${path}`, (req, res, next) => {
       const router = express.Router();
-      const request = Request(req, res, {globalCookie})
+      const request = Request(req, res, { globalCookie })
       req.query = {
         ...req.query,
         ...req.body,
         ownCookie: 1,
       };
+      res.set('Access-Control-Allow-Origin', '*');
+      res.set('Access-Control-Allow-Headers', ['Content-Type', 'Authorization', 'Accept']);
+      res.set('Access-Control-Allow-Credentials', 'true');
       // qq 登录
       let uin = (req.cookies.uin || '');
       // login_type 2 微信登录
@@ -58,12 +61,12 @@ fs.readdirSync(path.join(__dirname, 'routes')).forEach(file => {
       req.cookies.uin = uin.replace(/\D/g, '');
       const func = RouterMap[path];
 
-      const args = {request, dataStatistics: dataHandle, feedback, cache, globalCookie};
-      router.post('/', (req, res) => func({req, res, ...args}));
-      router.get('/', (req, res) => func({req, res, ...args}));
+      const args = { request, dataStatistics: dataHandle, feedback, cache, globalCookie };
+      router.post('/', (req, res) => func({ req, res, ...args }));
+      router.get('/', (req, res) => func({ req, res, ...args }));
       if (corsMap[`/${filename}${path}`]) {
         router.options('/', (req, res) => {
-          res.set('Access-Control-Allow-Origin', 'https://y.qq.com');
+          res.set('Access-Control-Allow-Origin', '*');
           res.set('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
           res.set('Access-Control-Allow-Headers', 'Content-Type');
           res.set('Access-Control-Allow-Credentials', 'true');
@@ -95,6 +98,10 @@ app.use(function (err, req, res, next) {
   // render the error page
   res.status(err.status || 500);
   res.render('error');
+});
+
+process.on('uncaughtException', function (err) {
+  console.log('错误信息: ' + err);
 });
 
 module.exports = app;
