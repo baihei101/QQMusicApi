@@ -49,7 +49,7 @@ fs.readdirSync(path.join(__dirname, 'routes')).forEach(file => {
         ...req.body,
         ownCookie: 1,
       };
-      res.set('Access-Control-Allow-Origin', '*');
+      res.set('Access-Control-Allow-Origin', 'http://47.109.193.125:5173');
       res.set('Access-Control-Allow-Headers', ['Content-Type', 'Authorization', 'Accept']);
       res.set('Access-Control-Allow-Credentials', 'true');
       // qq 登录
@@ -66,7 +66,7 @@ fs.readdirSync(path.join(__dirname, 'routes')).forEach(file => {
       router.get('/', (req, res) => func({ req, res, ...args }));
       if (corsMap[`/${filename}${path}`]) {
         router.options('/', (req, res) => {
-          res.set('Access-Control-Allow-Origin', '*');
+          res.set('Access-Control-Allow-Origin', 'http://47.109.193.125:5173');
           res.set('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
           res.set('Access-Control-Allow-Headers', 'Content-Type');
           res.set('Access-Control-Allow-Credentials', 'true');

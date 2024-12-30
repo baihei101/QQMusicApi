@@ -100,7 +100,7 @@ const user = {
       globalCookie.updateUserCookie(userCookie);
       jsonFile.writeFile('data/cookie.json', userCookie);
     }
-    res.set('Access-Control-Allow-Origin', '*');
+    res.set('Access-Control-Allow-Origin', 'http://47.109.193.125:5173');
     res.set('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
     res.set('Access-Control-Allow-Headers', 'Content-Type');
     res.set('Access-Control-Allow-Credentials', 'true');
