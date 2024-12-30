@@ -13,31 +13,60 @@ const album = {
     }
 
     try {
-      const pageInfo = await request(`https://y.qq.com/n/yqq/album/${albummid}.html`, {dataType: 'raw'});
-      const $ = cheerio.load(pageInfo);
-      let albumInfo = {};
-      try {
-        $('script').each((i, content) => {
-          content.children.forEach(({data = ''}) => {
-            if (data.includes('window.__USE_SSR__')) {
-              const {detail} = eval(data.replace(/window\.__/g, 'window__'));
-              albumInfo = {
-                ...detail,
-                name: detail.albumName,
-                subTitle: detail.title,
-                ar: detail.singer,
-                mid: detail.albumMid,
-                publishTime: detail.ctime,
-              }
-              delete albumInfo.singer;
-              delete albumInfo.albumMid;
-            }
-          })
-        })
-      } catch (err) {
-        console.log(err);
-      }
+      const result = await request({
+        url: 'https://c6.y.qq.com/v8/fcg-bin/musicmall.fcg',
+        data: {
+          _: 1734155602122,
+          cv: 4747474,
+          ct: 24,
+          format: 'json',
+          inCharset: 'utf-8',
+          outCharset: 'utf-8',
+          notice: 0,
+          platform: 'yqq.json',
+          needNewCode: 1,
+          uin: req.cookies.uin,
+          g_tk_new_20200303: 1758016319,
+          g_tk: 1758016319,
+          cmd: 'get_album_buy_page',
+          albummid: albummid,
+          albumid: 0
+        }
+      });
 
+      let albumInfo = result.data;
+      albumInfo.ar = albumInfo.singerinfo
+      albumInfo.name = albumInfo.album_name
+      albumInfo.mid = albumInfo.album_mid
+      albumInfo.id = albumInfo.album_id
+      albumInfo.publishTime = albumInfo.publictime
+      
+      delete albumInfo.singerinfo;
+      delete albumInfo.album_name;
+      delete albumInfo.album_mid;
+      delete albumInfo.album_id;
+      delete albumInfo.publictime;
+      delete albumInfo.recomalbum;
+      delete albumInfo.sale_info;
+      delete albumInfo.songlist;
+      
+      albumInfo.ar.forEach(obj => {
+          if (obj.hasOwnProperty('singermid')) {
+              obj.mid = obj.singermid;
+              delete obj.singermid;
+          }
+
+          if (obj.hasOwnProperty('singername')) {
+              obj.name = obj.singername;
+              delete obj.singername;
+          }
+          
+          if (obj.hasOwnProperty('singerid')) {
+              obj.id = obj.singerid;
+              delete obj.singerid;
+          }
+      });
+      
       res.send({
         result: 100,
         data: albumInfo,
